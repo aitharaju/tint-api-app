@@ -153,17 +153,18 @@ exec { "${as_vagrant} 'gem install bundler --no-rdoc --no-ri'":
 }
 
 exec {	"rvm rubygems current":
-	command => "${as_vagrant} 'source ~/.rvm/scripts/rvm'"	
+	command => "${as_vagrant} 'source ~/.rvm/scripts/rvm'",
+	group => 'root'
+
 }
 
 exec { "rvm  sssrubygems current":
-	command => "${as_vagrant} 'rvm rubygems current'"
+	command => "${as_vagrant} '${home}/.rvm/bin/rvm rubygems current'"
 }
 
-package { 'passenger':
-	  ensure => 'installed',
-	  provider => 'gem'	
-}
+exec { 'passenger':
+	command => "${as_vagrant} 'gem install passenger'"
+	}
 #include nginx
 
 
@@ -175,7 +176,7 @@ package { 'passenger':
     package { $passenger_deps: ensure => present }
 exec { 'nginx-install':
 
-      command => "${as_vagrant} 'rvmsudo passenger-install-nginx-module --auto --auto-download  --prefix=/opt/nginx'",
+      command => "${as_vagrant} 'rvmsudo  passenger-install-nginx-module --auto --auto-download  --prefix=/opt/nginx'",
       group   => 'root',
       unless  => "/usr/bin/test -d ${installdir}",
     }
