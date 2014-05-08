@@ -152,6 +152,10 @@ exec { "${as_vagrant} 'gem install bundler --no-rdoc --no-ri'":
   require => Exec['install_ruby']
 }
 
+package { 'vim':
+    ensure => present
+  }
+  
 exec {	"rvm rubygems current":
 	command => "${as_vagrant} 'source ~/.rvm/scripts/rvm'",
 	group => 'root'
@@ -186,3 +190,14 @@ exec { 'nginx-install':
 exec { 'update-locale':
   command => 'update-locale LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8 LC_ALL=en_US.UTF-8'
 }
+
+
+  define vhostfile($server_name, $environment, $app_directory){
+
+    file { "/opt/nginx/nginx/${server_name}":
+        require => Package["nginx"],
+        ensure => "file",
+        source =>"puppet:///templates/nginx.conf",
+        notify => Service["nginx"]
+    }
+  }
