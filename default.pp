@@ -59,10 +59,14 @@ package { 'nodejs':
 
 # --- Ruby ---------------------------------------------------------------------
 
-exec { 'install_rvm':
+exec { 'installrvm':
   command => "${as_vagrant} 'curl -L https://get.rvm.io | bash -s stable'",
   creates => "${home}/.rvm/bin/rvm",
   require => Package['curl']
+}
+
+exec { 'install_ruby_dev':
+	command => 'sudo apt-get -q -y install ruby-dev'
 }
 
 exec { 'install_ruby':
@@ -71,16 +75,18 @@ exec { 'install_ruby':
   # The rvm executable is more suitable for automated installs.
   #
   # use a ruby patch level known to have a binary
-  command => "${as_vagrant} '${home}/.rvm/bin/rvm install ruby-${ruby_version} --binary --autolibs=enabled && rvm alias create default ${ruby_version}'",
+  command => "${as_vagrant} '~/.rvm/bin/rvm install ruby-${ruby_version}'",
   creates => "${home}/.rvm/bin/ruby",
-  require => Exec['install_rvm']
+  require => Exec['installrvm'],
+  timeout => 0
 }
 
 # RVM installs a version of bundler, but for edge Rails we want the most recent one.
-exec { "${as_vagrant} 'gem install bundler --no-rdoc --no-ri'":
-  creates => "${home}/.rvm/bin/bundle",
-  require => Exec['install_ruby']
-}
+#exec { "bundler":
+#command => "gem install bundler", 
+# creates => "${home}/.rvm/bin/bundle",
+#  require => Exec['rvm']
+#}
 
 package { 'vim':
     ensure => present
@@ -89,18 +95,18 @@ package { 'vim':
 exec {	"rvm_rubygems_current":
 	command => "${as_vagrant} 'source ~/.rvm/scripts/rvm'",
 	group => 'root',
-	require => Exec['install_ruby']
+	require => Exec['installrvm']
 
 }
 
 exec { "rvm":
-	command => "${as_vagrant} '${home}/.rvm/bin/rvm rubygems current'",
+	command => "sudo -u ubuntu -H bash -l -c ~/.rvm/bin/rvm rubygems current",
 	require => Exec['rvm_rubygems_current']
 
 }
 
 exec { 'passenger':
-	command => "${as_vagrant} 'gem install passenger'",
+	command => "${as_vagrant} 'sudo gem install passenger'",
 	require => Exec['rvm']
 	}
 #include nginx
