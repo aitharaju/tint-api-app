@@ -94,7 +94,6 @@ package { 'vim':
   
 exec {	"rvm_rubygems_current":
 	command => "${as_vagrant} 'source ~/.rvm/scripts/rvm'",
-	group => 'root',
 	require => Exec['installrvm']
 
 }
@@ -105,9 +104,17 @@ exec { "rvm":
 
 }
 
+exec { 'default_ruby':
+	command => "${as_vagrant} 'rvm use ruby-2.1.1 --default'",
+	require => Exec['rvm'],
+	logoutput => true
+
+}
+
 exec { 'passenger':
-	command => "${as_vagrant} 'sudo gem install passenger'",
-	require => Exec['rvm']
+	command => "${as_vagrant} 'gem install passenger'",
+	require => Exec['rvm'],
+	logoutput => true
 	}
 #include nginx
 
@@ -120,13 +127,23 @@ exec { 'passenger':
     package { $passenger_deps: ensure => present }
 exec { 'nginx-install':
 
-      command => "${as_vagrant} 'rvmsudo  passenger-install-nginx-module --auto --auto-download  --prefix=/opt/nginx'",
-      group   => 'root',
+      command => "rvmsudo  passenger-install-nginx-module --auto --auto-download --prefix=/opt/nginx",
       unless  => "/usr/bin/test -d ${installdir}",
-      require => Exec['passenger']
+      require => Exec['passenger'],
+      logoutput => true
     }
 #     -------------------------------------------------------------------
 
+exec { 'nginx':
+       command => "wget -O init-deb.sh http://library.linode.com/assets/660-init-deb.sh; sudo mv init-deb.sh /etc/init.d/nginx; sudo chmod +x /etc/init.d/nginx; sudo /usr/sbin/update-rc.d -f nginx defaults",
+	require => Exec['nginx-install']
+}
+
+exec {'mysql':
+	command => "${as_vagrant} 'sudo apt-get install -y libmysqlclient-dev'",
+	require => Exec['rvm']
+
+}
 # Needed for docs generation.
 exec { 'update-locale':
   command => 'update-locale LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8 LC_ALL=en_US.UTF-8'
