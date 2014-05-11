@@ -98,7 +98,6 @@ exec {	"rvm_rubygems_current":
 	require => Exec['installrvm']
 
 }
-
 exec { "rvm":
 	command => "sudo -u ubuntu -H bash -l -c ~/.rvm/bin/rvm rubygems current",
 	require => Exec['rvm_rubygems_current']
@@ -128,7 +127,7 @@ exec { 'passenger':
     package { $passenger_deps: ensure => present }
 exec { 'nginx-install':
 
-      command => "rvmsudo  passenger-install-nginx-module --auto --auto-download --prefix=/opt/nginx",
+      command => "${as_vagrant} 'rvmsudo  passenger-install-nginx-module --auto --auto-download --prefix=/opt/nginx'",
       unless  => "/usr/bin/test -d ${installdir}",
       require => Exec['passenger'],
       logoutput => true
@@ -159,8 +158,9 @@ exec { 'update-locale':
 }
 
 exec { 'resque-web':  
-  command => "${as_vagrant} 'gem instal resque-web'",
-  logoutput => true
+  command => "${as_vagrant} 'sudo gem install resque-web'",
+  logoutput => true,
+  require => Exec['default_ruby']
 }
 exec { 'nohup-resque-web':
   command => "${as_vagrant} 'resque-web -p 8282'",
