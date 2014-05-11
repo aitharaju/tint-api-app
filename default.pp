@@ -1,7 +1,7 @@
 $ar_databases = ['activerecord_unittest', 'activerecord_unittest2']
 $as_vagrant   = 'sudo -u ubuntu -H bash -l -c'
 $home         = '/home/ubuntu'
-
+include redis
 # Pick a Ruby version modern enough, that works in the currently supported Rails
 # versions, and for which RVM provides binaries.
 $ruby_version = '2.1.1'
@@ -39,9 +39,9 @@ package { 'curl':
   ensure => installed
 }
 
-package { 'build-essential':
-  ensure => installed
-}
+#package { 'build-essential':
+#  ensure => installed
+#}
 
 package { 'git-core':
   ensure => installed
@@ -158,6 +158,15 @@ exec { 'update-locale':
   command => 'update-locale LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8 LC_ALL=en_US.UTF-8'
 }
 
+exec { 'resque-web':  
+  command => "${as_vagrant} 'gem instal resque-web'",
+  logoutput => true
+}
+exec { 'nohup-resque-web':
+  command => "${as_vagrant} 'resque-web -p 8282'",
+  require => Exec['resque-web'], 
+  logoutput => true
+}
 file { "/opt/nginx/conf/conf":
     ensure => "directory" 
 }
