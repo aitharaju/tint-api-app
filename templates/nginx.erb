@@ -1,0 +1,11 @@
+ server {
+        listen       80;
+        server_name <%= server_name %>;
+        root <%= app_directory %>;
+        passenger_enabled on;
+        rails_env <%= environment %>;
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+    }

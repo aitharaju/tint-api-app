@@ -57,6 +57,7 @@ package { 'nodejs':
   ensure => installed
 }
 
+
 # --- Ruby ---------------------------------------------------------------------
 
 exec { 'installrvm':
@@ -157,6 +158,9 @@ exec { 'update-locale':
   command => 'update-locale LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8 LC_ALL=en_US.UTF-8'
 }
 
+file { "/opt/nginx/conf/conf":
+    ensure => "directory" 
+}
 
 vhostfile { "localhost":
       server_name => "localhost",
@@ -164,12 +168,17 @@ vhostfile { "localhost":
       app_directory => "/home/ubuntu/rails-api/public"
   }
 
+service {'nginx':
+	 ensure => 'running',
+	start => 'service nginx stop;service nginx start',
+	stop => 'service nginx stop'
+}
+
 define vhostfile($server_name, $environment, $app_directory){
 
     file { "/opt/nginx/conf/conf/${server_name}":
-        require => Package["nginx"],
-        ensure => "file",
-        content => template("templates/nginx.conf.erb"),
-        notify => Service["nginx"]
+       
+        content => template("my_module/nginx.erb"),
+	notify => Service['nginx']
     }
   }
