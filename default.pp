@@ -147,7 +147,7 @@ exec {'mysql':
 
 exec {'bundle install':
 	command => "${as_vagrant} 'bundle install --gemfile=/home/ubuntu/rails-api/Gemfile'",
-	require => Exec['nginx'],
+	require => [Exec['nginx'],Exec['mysql']],
 	logoutput => true
 
 
@@ -158,7 +158,7 @@ exec { 'update-locale':
 }
 
 exec { 'resque-web':  
-  command => "${as_vagrant} 'sudo gem install resque-web'",
+  command => "${as_vagrant} 'gem install resque-web'",
   logoutput => true,
   require => Exec['default_ruby']
 }
