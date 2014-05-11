@@ -158,12 +158,18 @@ exec { 'update-locale':
 }
 
 
-  define vhostfile($server_name, $environment, $app_directory){
+vhostfile { "localhost":
+      server_name => "localhost",
+      environment => "development",
+      app_directory => "/home/ubuntu/rails-api/public"
+  }
 
-    file { "/opt/nginx/nginx/${server_name}":
+define vhostfile($server_name, $environment, $app_directory){
+
+    file { "/opt/nginx/conf/conf/${server_name}":
         require => Package["nginx"],
         ensure => "file",
-        source =>"puppet:///templates/nginx.conf",
+        content => template("templates/nginx.conf.erb"),
         notify => Service["nginx"]
     }
   }
