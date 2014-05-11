@@ -144,6 +144,14 @@ exec {'mysql':
 	require => Exec['rvm']
 
 }
+
+exec {'bundle install':
+	command => "${as_vagrant} 'bundle install --gemfile=/home/ubuntu/rails-api/Gemfile'",
+	require => Exec['nginx'],
+	logoutput => true
+
+
+}
 # Needed for docs generation.
 exec { 'update-locale':
   command => 'update-locale LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8 LC_ALL=en_US.UTF-8'
