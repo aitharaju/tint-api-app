@@ -1,0 +1,13 @@
+sudo apt-get install git
+sudo apt-get install puppet
+puppet --version ( should be 3.4.3 or higher )
+Generate your SSH key - https://help.github.com/articles/generating-ssh-keys
+git clone git@github.com:aitharaju/tint-api-app.git
+git clone git@github.com:aitharaju/rails-api.git
+sudo puppet apply --modulepath modules
+add "include conf/*" in the http section of nginx.conf file (/opt/nginx/conf/nginx.conf)
+Adjust the number of nginx workers
+source ~/.rvm/scripts/rvm
+
+
+
